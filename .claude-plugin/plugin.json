@@ -1,0 +1,5 @@
+{
+  "name": "plan-anchor",
+  "version": "0.0.1",
+  "description": "Keeps complex Claude Code coding tasks anchored to the original plan, mission, acceptance criteria, and delivery path"
+}
