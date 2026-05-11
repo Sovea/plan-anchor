@@ -1,8 +1,8 @@
 # Plan Anchor
 
-Plan Anchor is a Claude Code skill-focused plugin that keeps complex AI coding tasks anchored to the original mission, plan, acceptance criteria, and delivery path. It uses an internal execution governance protocol to reduce plan drift, local-fix loops, stalled progress, and context-loss failures.
+Plan Anchor is a Claude Code skill-focused plugin for complex AI coding tasks. It keeps implementation anchored to the original mission, plan, acceptance criteria, verification path, and handoff state.
 
-Plan Anchor does not create persistent state files by default. It governs execution inside the current Claude Code session unless the user explicitly opts in to durable state.
+Plan Anchor is intentionally non-persistent by default. It governs execution inside the current Claude Code session unless the user explicitly opts in to a durable anchor file.
 
 ## What It Provides
 
@@ -12,9 +12,24 @@ Plan Anchor does not create persistent state files by default. It governs execut
 - Optional durable anchor mode for cross-session or long-running work
 - Checklists for intake, pre-implementation, post-work-unit review, drift checks, local-fix loop recovery, context compaction, pre-completion validation, and task recovery
 - A detailed execution governance protocol reference
-- A compact example of a governed feature task
+- Examples for lightweight, governed, and resume workflows
 
-## When to Use It
+## Quick Start
+
+Install from the marketplace:
+
+```sh
+/plugin marketplace add sovea/cc-marketplace
+/plugin install plan-anchor@sovea
+```
+
+Then ask Claude Code to use it explicitly:
+
+```text
+Use Plan Anchor for this refactor. Keep the work anchored and produce a handoff if we stop before completion.
+```
+
+## When To Use It
 
 Use this plugin for Claude Code tasks that involve:
 
@@ -24,10 +39,11 @@ Use this plugin for Claude Code tasks that involve:
 - Concern about plan drift, stalled progress, or repeated small fixes
 - Resuming from a prior handoff
 
-Example trigger phrases:
+Use explicit trigger phrases:
 
 - "use Plan Anchor"
 - "anchor this implementation"
+- "govern this implementation"
 - "keep this task anchored"
 - "use execution governance"
 - "prevent plan drift"
@@ -35,15 +51,26 @@ Example trigger phrases:
 - "avoid local fix loops"
 - "resume from handoff"
 
+## When Not To Use It
+
+Skip Plan Anchor for:
+
+- One-line fixes.
+- Routine explanations or code reading.
+- Simple single-file edits with obvious verification.
+- Exploratory brainstorming where no implementation is starting yet.
+
 ## Execution Modes
 
-### Default: Governed Session Mode
+### Level 1: Simple
 
-By default, Plan Anchor keeps state in the conversation, plan mode, Claude Code task tracking, and handoff messages. It does not create or modify files for Plan Anchor state.
+Lightweight alignment for small but non-trivial tasks. Claude restates the mission, acceptance criteria, and verification, but does not create a Work Unit ledger.
 
-Use this mode for most complex coding tasks that can finish within the current session or can be resumed from a pasted handoff.
+### Level 2: Governed
 
-### Optional: Durable Anchor Mode
+Default for complex work. Claude keeps state in the conversation, task tracking, and handoff messages. It does not create or modify files for Plan Anchor state.
+
+### Level 3: Durable
 
 For long-running, cross-session, high-risk, or multi-agent tasks, Plan Anchor can create a durable anchor file only after explicit user approval.
 
@@ -55,6 +82,8 @@ Recommended path:
 
 The durable anchor stores the mission contract, execution plan, Work Units, progress ledger, verification matrix, drift log, handoff state, and next action. It should not contain secrets, credentials, tokens, or private external data.
 
+Durable anchor files should normally be excluded from version control unless the user explicitly asks to commit them.
+
 ## Resume Workflow
 
 When resuming governed work:
@@ -65,17 +94,24 @@ When resuming governed work:
 4. If the repository conflicts with the handoff, the repository is treated as authoritative.
 5. Work resumes from the smallest next action that advances the active Work Unit.
 
-## Install
+## Example Output Shape
 
-### Claude Code
+For governed work, Plan Anchor should produce compact state like this before implementation:
 
-```sh
-# add marketplace
-/plugin marketplace add sovea/cc-marketplace
+```md
+Mission: Add saved filters to the issue list without changing existing query semantics.
 
-# install plugin
-/plugin install plan-anchor@sovea
+Acceptance:
+- AC1: A user can save the current filter set with a name.
+- AC2: Saved filters appear in the sidebar.
+- AC3: Selecting a saved filter applies the stored query.
+
+Active Work Unit: WU-1, persist saved filters.
+Verification: model/unit tests for save/list behavior, then behavioral check of the issue list flow.
+Drift Guardrail: Do not add sharing or editing in this pass.
 ```
+
+See `skills/plan-anchor/examples/` for fuller examples.
 
 ## License
 
