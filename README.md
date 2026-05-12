@@ -33,16 +33,15 @@ If you're not already in a session, a prose fallback also works:
 
 ## Commands
 
-> The command layer is delivered in milestone M2. Until then, Plan Anchor runs via explicit state-file editing and prose triggers. The skill definition and state schema are already in place.
-
 | Command | Purpose |
 | --- | --- |
 | `/anchor:start <slug>` | Capture mission, AC, plan; create `<slug>.md`; set as current. |
 | `/anchor:status` | Print the current task's state in ~30 lines. |
-| `/anchor:drift` | Run a drift check against Plan + Acceptance. |
-| `/anchor:handoff` | Produce / refresh the Handoff section for resume. |
-| `/anchor:resume [slug]` | Reload state, align with repo, state the next action. |
-| `/anchor:done` | Gate completion on evidence per AC. |
+| `/anchor:drift` | Run a drift check against Plan, Non-Goals, and AC. |
+| `/anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |
+| `/anchor:resume [slug]` | Reload state, align with repo, announce the next action. |
+| `/anchor:switch <slug>` | Point `current.txt` at another existing task without running resume. |
+| `/anchor:done` | Completion gate — refuses unless every AC has evidence and all drift is resolved. |
 
 ## When to use
 
@@ -72,7 +71,7 @@ Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, and recovery semantics are in place. The `/anchor:*` command layer, hooks, and evaluation harness are being delivered in subsequent milestones.
+Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, recovery semantics, and the full `/anchor:*` command layer are in place. The enforcement hooks (blocking edits outside the active Work Unit, auto-restoring state at session start, flushing handoff before compaction) and the evaluation harness are being delivered in subsequent milestones.
 
 ## License
 

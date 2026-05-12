@@ -26,7 +26,7 @@ Plan Anchor is delivered as three layers, not as prose:
 
 - **State file** — one Markdown file per task at `.claude/plan-anchor/<slug>.md`, with the active slug tracked in `.claude/plan-anchor/current.txt`. This file is the single source of truth for mission, plan, Work Units, verification, drift, and handoff. See `state/template.md`.
 - **Hooks** — `SessionStart` restores state, `UserPromptSubmit` injects active Work Unit + open drift, `PreToolUse` blocks edits that leave the active Work Unit's scope, `PreCompact` flushes the Handoff section, `Stop` sanity-checks completion claims. Hook scripts live in `hooks/`.
-- **Commands** — `/anchor:start`, `/anchor:status`, `/anchor:drift`, `/anchor:handoff`, `/anchor:resume`, `/anchor:done`. These are the primary UI; prose triggers are a fallback only.
+- **Commands** — `/anchor:start`, `/anchor:status`, `/anchor:drift`, `/anchor:handoff`, `/anchor:resume`, `/anchor:switch`, `/anchor:done`. These are the primary UI; prose triggers are a fallback only. Definitions live in `commands/anchor/*.md`.
 
 ## Core flow
 
@@ -52,6 +52,7 @@ Load these files only when needed:
 - `state/template.md` — canonical state file shape.
 - `references/guardrails.md` — the 5 hard rules.
 - `references/recovery.md` — resume semantics and conflict resolution.
+- `commands/anchor/*.md` (at plugin root) — slash-command definitions: `start`, `status`, `drift`, `handoff`, `resume`, `switch`, `done`.
 - `examples/governed.md` — a filled-in state file for a multi-Work-Unit feature.
 - `examples/resume.md` — a resume-from-handoff walkthrough.
 

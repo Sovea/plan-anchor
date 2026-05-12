@@ -1,7 +1,7 @@
 {
   "name": "plan-anchor",
-  "version": "0.0.1",
-  "description": "Keeps complex Claude Code coding tasks anchored to the original plan, mission, acceptance criteria, and delivery path",
+  "version": "0.1.0",
+  "description": "Keeps Claude Code on mission across long tasks: no drift, no dropouts across compaction, no false completion.",
   "author": {
     "name": "Sovea",
     "url": "https://github.com/Sovea"
