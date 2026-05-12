@@ -57,9 +57,20 @@ If you're not already in a session, a prose fallback also works:
 - Single-file edits with obvious verification.
 - Exploratory brainstorming before implementation begins.
 
-## How it differs from a checklist
+## Hooks
 
-Plan Anchor is not a protocol document the agent is asked to remember. The rules are enforced at the harness level through hooks: editing a file outside the active Work Unit is blocked at the tool-use boundary, drift becomes visible in every turn, compaction flushes state to disk before it can drop, and completion claims are diffed against recorded evidence.
+Plan Anchor is not a protocol document the agent is asked to remember. The five hard rules are enforced at the harness level through six plugin-registered hooks:
+
+| Event | Script | Role |
+| --- | --- | --- |
+| `SessionStart` | `hooks/session_start.js` | Inject a 4-line resume brief so a new or post-compaction session knows the active task, Work Unit, and next action. |
+| `UserPromptSubmit` | `hooks/user_prompt.js` | Inject active WU + scope + open drift + local-fix loop warning into every turn. |
+| `PreToolUse` (`Edit\|Write\|MultiEdit`) | `hooks/pre_edit.js` | **Block** any edit when no Work Unit is active or when the target is outside the active WU's declared scope (G1). |
+| `PostToolUse` (`Edit\|Write\|MultiEdit`) | `hooks/post_edit.js` | Maintain the local-fix-loop counter in a per-task sidecar `.meta.json` (G2 detection). |
+| `PreCompact` | `hooks/pre_compact.js` | Flush the Handoff section to disk before compaction so resume works afterwards (G3 support). |
+| `Stop` | `hooks/stop.js` | Quietly refresh Handoff at the end of every agent turn so every pause leaves a resume-ready state file. |
+
+All hooks read `${CLAUDE_PROJECT_DIR}/.claude/plan-anchor/` and are fail-open — any script error exits 0 silently rather than breaking the session. If there is no active task, every hook no-ops immediately.
 
 See `skills/plan-anchor/references/guardrails.md` for the five hard rules and why each exists.
 
@@ -67,11 +78,23 @@ See `skills/plan-anchor/references/guardrails.md` for the five hard rules and wh
 
 The state file is intentionally small (soft cap ~2 KB) and gitignored by default. It contains mission, acceptance criteria, plan, Work Units, verification, drift log, and handoff — as sections of one Markdown file, not seven templates. See `skills/plan-anchor/state/template.md`.
 
+Layout per task, created by `/anchor:start`:
+
+```
+.claude/plan-anchor/
+├── .gitignore           # single line: *  — keeps the whole dir out of git
+├── current.txt          # slug of the currently active task
+├── <slug>.md            # human-readable state file (mission, AC, WUs, ...)
+└── <slug>.meta.json     # hook-managed sidecar: recent_touches, loop_counter
+```
+
+The `.gitignore` is directory-scoped so Plan Anchor never touches the repo's root `.gitignore`. Works on repos that aren't under git at all.
+
 Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, recovery semantics, and the full `/anchor:*` command layer are in place. The enforcement hooks (blocking edits outside the active Work Unit, auto-restoring state at session start, flushing handoff before compaction) and the evaluation harness are being delivered in subsequent milestones.
+Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, recovery semantics, the full `/anchor:*` command layer, and all six enforcement hooks are in place. The evaluation harness (M5) is the remaining piece.
 
 ## License
 

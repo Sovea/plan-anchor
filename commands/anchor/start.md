@@ -23,13 +23,15 @@ Run once, quietly:
 mkdir -p .claude/plan-anchor
 ```
 
-Then ensure `.claude/plan-anchor/` is gitignored. Check for a `.gitignore` at the repo root:
+Then ensure the state directory is git-ignored. Prefer a **directory-scoped** gitignore so we never touch the user's root `.gitignore`:
 
-- If `.gitignore` does not exist: create it with the single line `.claude/plan-anchor/`.
-- If `.gitignore` exists and does not include `.claude/plan-anchor/` or a broader pattern that covers it: append `.claude/plan-anchor/` on a new line.
-- If already covered: leave it alone.
+- If `.claude/plan-anchor/.gitignore` does not exist, create it with a single line: `*`.
+  - This makes the whole state directory untracked regardless of the repo's root `.gitignore`, works even on repos not under git, and leaves the user's top-level ignore file alone.
+- If it already exists, leave it alone.
 
-Tell the user in one line what you did (created / appended / already covered).
+Do **not** modify the repo's root `.gitignore`.
+
+Tell the user in one line what you did ("created .claude/plan-anchor/.gitignore" or "already present").
 
 ## Intake
 

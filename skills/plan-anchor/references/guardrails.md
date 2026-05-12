@@ -29,7 +29,7 @@ Then pick exactly one action: **continue with a bounded fix**, **replan**, **ask
 
 **Prevents.** Runaway debugging loops that churn the repo without advancing the Work Unit — the classic "fix the test to make it pass" failure mode that quietly weakens coverage.
 
-**Enforced by.** `hooks/post_edit.js` maintains a small counter in the state file; when the counter crosses 2, it injects a block-and-classify prompt through `hooks/user_prompt.js` on the next turn.
+**Enforced by.** `hooks/post_edit.js` maintains a rolling loop counter in a sidecar file (`.claude/plan-anchor/<slug>.meta.json`): each secondary-looking edit or out-of-scope touch increments the counter, each mainline in-scope edit resets it. When the counter reaches 2, `hooks/user_prompt.js` injects a classify-and-decide prompt into the next turn's context.
 
 ---
 
@@ -41,7 +41,7 @@ A task may only be marked `status: complete` in the state file when every accept
 
 **Prevents.** "Implementation looks right, ship it" false completions — the most common way agents declare victory while verification is silently missing.
 
-**Enforced by.** `/anchor:done` refuses to mark the task complete if any AC lacks evidence; `hooks/stop.js` warns when the final agent message claims completion but the state file disagrees.
+**Enforced by.** `/anchor:done` refuses to mark the task complete if any AC lacks evidence. `hooks/pre_compact.js` and `hooks/stop.js` quietly refresh the Handoff section at every compaction and at the end of every agent turn, so the state file always reflects current AC / WU / evidence status — which keeps `/anchor:done` honest.
 
 ---
 

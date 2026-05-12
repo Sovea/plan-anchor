@@ -12,6 +12,10 @@ This file is the single source of truth for one Plan Anchor task.
 
 - One file per task at `.claude/plan-anchor/<slug>.md`.
 - `.claude/plan-anchor/current.txt` holds the slug of the currently active task.
+- `.claude/plan-anchor/<slug>.meta.json` is a hook-managed sidecar (recent
+  touches, loop counter); never edit it by hand.
+- The whole directory is git-ignored via `.claude/plan-anchor/.gitignore`
+  (contents: `*`), installed by /anchor:start.
 - Hooks read `current.txt` → this file on every edit, prompt, and session start.
 - Do not store secrets, credentials, tokens, or unrelated project notes here.
 - Keep the file compact (soft cap ~2 KB). Compress completed Work Units to one line.
