@@ -472,7 +472,7 @@ function smallestNextAction(state) {
   const active = findActiveWU(state);
   if (!active) {
     const next = state.workUnits.find((wu) => wu.status === 'pending');
-    return next ? `Promote ${next.id} to active and begin: ${next.goal}` : 'Run /anchor:done to gate completion';
+    return next ? `Promote ${next.id} to active and begin: ${next.goal}` : 'Run /plan-anchor:done to gate completion';
   }
   const remaining = active.doneWhen.filter((d) => !d.checked);
   if (remaining.length > 0) return remaining[0].text;

@@ -41,7 +41,7 @@ A task may only be marked `status: complete` in the state file when every accept
 
 **Prevents.** "Implementation looks right, ship it" false completions — the most common way agents declare victory while verification is silently missing.
 
-**Enforced by.** `/anchor:done` refuses to mark the task complete if any AC lacks evidence. `hooks/pre_compact.js` and `hooks/stop.js` quietly refresh the Handoff section at every compaction and at the end of every agent turn, so the state file always reflects current AC / WU / evidence status — which keeps `/anchor:done` honest.
+**Enforced by.** `/plan-anchor:done` refuses to mark the task complete if any AC lacks evidence. `hooks/pre_compact.js` and `hooks/stop.js` quietly refresh the Handoff section at every compaction and at the end of every agent turn, so the state file always reflects current AC / WU / evidence status — which keeps `/plan-anchor:done` honest.
 
 ---
 
@@ -53,7 +53,7 @@ Opportunistic refactors, "cleanup while here", and replacing the approved approa
 
 **Prevents.** Silent scope / architecture creep, the second-most-common failure mode in long tasks. Forces the agent to name the deviation and, where it matters, stop for confirmation.
 
-**Enforced by.** `/anchor:drift` runs a drift check; the `hooks/user_prompt.js` injection includes the Drift Log's open rows in every turn so the agent can't forget them.
+**Enforced by.** `/plan-anchor:drift` runs a drift check; the `hooks/user_prompt.js` injection includes the Drift Log's open rows in every turn so the agent can't forget them.
 
 ---
 
@@ -65,7 +65,7 @@ If a check cannot be run in this environment, record it as `blocked` with the re
 
 **Prevents.** Summary-as-substitute-for-verification — the agent saying "I've confirmed the behavior" when nothing ran. Also prevents the anti-pattern of weakening an assertion so the suite reports green.
 
-**Enforced by.** `/anchor:done` diffs the Verification table against Claude's message for the pattern "verified / tested / confirmed" and flags mismatches.
+**Enforced by.** `/plan-anchor:done` diffs the Verification table against Claude's message for the pattern "verified / tested / confirmed" and flags mismatches.
 
 ---
 

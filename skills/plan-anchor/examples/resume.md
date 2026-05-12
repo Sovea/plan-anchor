@@ -7,7 +7,7 @@ A walkthrough of what Plan Anchor does when a new session attaches to a task tha
 Either:
 
 - The user opens a new Claude Code session in the same repo. `SessionStart` (source=`startup`) fires with `.claude/plan-anchor/current.txt` containing `saved-filters`.
-- The user runs `/anchor:resume` (optionally with a slug).
+- The user runs `/plan-anchor:resume` (optionally with a slug).
 - The user pastes a Handoff section as input.
 
 ## Recovery sequence

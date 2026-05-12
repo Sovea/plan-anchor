@@ -1,6 +1,6 @@
 ---
 name: plan-anchor
-description: Use when the user types a `/anchor:*` command or says "use plan anchor" — or when a long, multi-file, architecture-sensitive task clearly needs drift control, loop-breaking, or resumable handoff.
+description: Use when the user types a `/plan-anchor:*` command or says "use plan anchor" — or when a long, multi-file, architecture-sensitive task clearly needs drift control, loop-breaking, or resumable handoff.
 version: 0.1.0
 ---
 
@@ -14,7 +14,7 @@ Keep complex Claude Code tasks on mission across many turns and across context c
 
 ## When to use
 
-- User invokes any `/anchor:*` command, or says "use plan anchor".
+- User invokes any `/plan-anchor:*` command, or says "use plan anchor".
 - Task is multi-file, multi-phase, architecture-sensitive, or likely to span many turns.
 - User needs a task to be resumable after pause, compaction, or a new session.
 
@@ -26,7 +26,7 @@ Plan Anchor is delivered as three layers, not as prose:
 
 - **State file** — one Markdown file per task at `.claude/plan-anchor/<slug>.md`, with the active slug tracked in `.claude/plan-anchor/current.txt`. This file is the single source of truth for mission, plan, Work Units, verification, drift, and handoff. See `state/template.md`.
 - **Hooks** — six Node.js hooks at the plugin root (`hooks/hooks.json` + `hooks/*.js`) enforce the guardrails automatically: `SessionStart` injects a resume brief, `UserPromptSubmit` injects active WU + open drift + loop warning each turn, `PreToolUse` on `Edit|Write|MultiEdit` **blocks** edits outside the active WU's scope, `PostToolUse` maintains the local-fix loop counter in a sidecar (`.meta.json`), `PreCompact` flushes Handoff before compaction, `Stop` quietly refreshes Handoff so every pause leaves a resume-ready state file.
-- **Commands** — `/anchor:start`, `/anchor:status`, `/anchor:drift`, `/anchor:handoff`, `/anchor:resume`, `/anchor:switch`, `/anchor:done`. These are the primary UI; prose triggers are a fallback only. Definitions live in `commands/anchor/*.md`.
+- **Commands** — `/plan-anchor:start`, `/plan-anchor:status`, `/plan-anchor:drift`, `/plan-anchor:handoff`, `/plan-anchor:resume`, `/plan-anchor:switch`, `/plan-anchor:done`. These are the primary UI; prose triggers are a fallback only. Definitions live in `commands/*.md`.
 
 ## Core flow
 
@@ -43,7 +43,7 @@ Five hard rules are enforced: active-WU-required, local-fix-loop breaker, eviden
 
 ## Resume
 
-On `SessionStart`, `/anchor:resume`, or when a Handoff section is pasted in, follow the recovery sequence in `references/recovery.md`. Repository state is authoritative over the state file on conflict.
+On `SessionStart`, `/plan-anchor:resume`, or when a Handoff section is pasted in, follow the recovery sequence in `references/recovery.md`. Repository state is authoritative over the state file on conflict.
 
 ## Resource map
 
@@ -52,14 +52,14 @@ Load these files only when needed:
 - `state/template.md` — canonical state file shape.
 - `references/guardrails.md` — the 5 hard rules.
 - `references/recovery.md` — resume semantics and conflict resolution.
-- `commands/anchor/*.md` (at plugin root) — slash-command definitions: `start`, `status`, `drift`, `handoff`, `resume`, `switch`, `done`.
+- `commands/*.md` (at plugin root) — slash-command definitions: `start`, `status`, `drift`, `handoff`, `resume`, `switch`, `done`.
 - `hooks/hooks.json` + `hooks/*.js` (at plugin root) — enforcement hooks and the shared parser in `hooks/lib/state.js`.
 - `examples/governed.md` — a filled-in state file for a multi-Work-Unit feature.
 - `examples/resume.md` — a resume-from-handoff walkthrough.
 
 ## What Plan Anchor will not do
 
-- Create or modify state files without `/anchor:start` or explicit user approval.
+- Create or modify state files without `/plan-anchor:start` or explicit user approval.
 - Store secrets, credentials, tokens, or private external data in the state file.
 - Weaken tests, widen types, or delete assertions to make a check pass.
 - Claim completion while any acceptance criterion lacks evidence.

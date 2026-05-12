@@ -15,7 +15,7 @@ This file is the single source of truth for one Plan Anchor task.
 - `.claude/plan-anchor/<slug>.meta.json` is a hook-managed sidecar (recent
   touches, loop counter); never edit it by hand.
 - The whole directory is git-ignored via `.claude/plan-anchor/.gitignore`
-  (contents: `*`), installed by /anchor:start.
+  (contents: `*`), installed by /plan-anchor:start.
 - Hooks read `current.txt` → this file on every edit, prompt, and session start.
 - Do not store secrets, credentials, tokens, or unrelated project notes here.
 - Keep the file compact (soft cap ~2 KB). Compress completed Work Units to one line.
@@ -103,7 +103,7 @@ _None._
 # Handoff
 
 <!--
-Auto-updated by the pre_compact hook and `/anchor:handoff`. Must be self-sufficient
+Auto-updated by the pre_compact hook and `/plan-anchor:handoff`. Must be self-sufficient
 for a fresh agent to resume without reading conversation history.
 -->
 

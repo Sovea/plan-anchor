@@ -12,7 +12,7 @@ Start a new Plan Anchor task with slug `$1`.
 2. Validate the slug: must match `^[a-z][a-z0-9-]{1,59}$`. If invalid, show the user what's wrong and re-ask.
 3. Check `.claude/plan-anchor/<slug>.md`:
    - If it exists and `status: complete` → ask whether to open a new task with a different slug or re-open this one.
-   - If it exists and `status: active|blocked` → don't overwrite. Suggest `/anchor:resume <slug>` and stop.
+   - If it exists and `status: active|blocked` → don't overwrite. Suggest `/plan-anchor:resume <slug>` and stop.
    - If it does not exist → proceed.
 
 ## Repository setup

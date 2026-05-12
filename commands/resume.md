@@ -10,7 +10,7 @@ Resume a Plan Anchor task. Follow the 6-step sequence from `skills/plan-anchor/r
 
 - If `$1` is provided: write it to `.claude/plan-anchor/current.txt` (overwrite) before continuing.
 - Read `.claude/plan-anchor/current.txt`. Let `slug` be its single line.
-- If `current.txt` is missing/empty and no `$1` was provided: list existing `.claude/plan-anchor/*.md` files (excluding `current.txt`) and ask the user which to resume, or suggest `/anchor:start <slug>`.
+- If `current.txt` is missing/empty and no `$1` was provided: list existing `.claude/plan-anchor/*.md` files (excluding `current.txt`) and ask the user which to resume, or suggest `/plan-anchor:start <slug>`.
 
 ## 2. Load state
 
@@ -46,7 +46,7 @@ Read the active Work Unit's `Done when` list. The next action is:
 - The first unchecked `Done when` item → implement it.
 - If every item is checked but the WU is not `complete` → run the WU's `Verification` line and record evidence.
 - If the WU is `complete` but `active_wu` still points at it → promote the next pending WU to `active`, update frontmatter, restart this step.
-- If all WUs are complete → run `/anchor:done`.
+- If all WUs are complete → run `/plan-anchor:done`.
 
 Phrase the next action as an imperative verb phrase (e.g., "Implement the empty-state branch in X and add the two-case component test").
 

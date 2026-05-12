@@ -26,7 +26,7 @@ lib.safeMain(async () => {
   if (!active) {
     lib.blockPreTool(
       `[Plan Anchor · G1] No active Work Unit on task "${state.slug}". ` +
-        `Run /anchor:resume to pick up the current task, /anchor:switch <slug> to change tasks, or /anchor:start <slug> for a new task before editing.`,
+        `Run /plan-anchor:resume to pick up the current task, /plan-anchor:switch <slug> to change tasks, or /plan-anchor:start <slug> for a new task before editing.`,
     );
   }
 
@@ -35,7 +35,7 @@ lib.safeMain(async () => {
     lib.blockPreTool(
       `[Plan Anchor · G1] Edit target "${rel}" is outside the active Work Unit's scope. ` +
         `${active.id} allows: [${active.scope.join(', ') || '(empty)'}]. ` +
-        `If this edit is needed, either /anchor:switch to the right Work Unit, widen ${active.id}'s Scope line in ${state.path}, or record this as drift via /anchor:drift — do not silently step outside the plan.`,
+        `If this edit is needed, either /plan-anchor:switch to the right Work Unit, widen ${active.id}'s Scope line in ${state.path}, or record this as drift via /plan-anchor:drift — do not silently step outside the plan.`,
     );
   }
 });

@@ -70,14 +70,14 @@ Failure (hard): `State file contains TODO/FIXME markers at lines: <lines>`.
 Print:
 
 ```
-/anchor:done — NOT COMPLETE. <N> check(s) failed:
+/plan-anchor:done — NOT COMPLETE. <N> check(s) failed:
 
   <failure 1>
   <failure 2>
   ...
 
 State file: .claude/plan-anchor/<slug>.md
-Fix the items above and re-run /anchor:done.
+Fix the items above and re-run /plan-anchor:done.
 ```
 
 Do **not** modify the state file. Do not claim the task is done in prose.
@@ -102,7 +102,7 @@ Update the state file:
 Then print:
 
 ```
-/anchor:done — COMPLETE.
+/plan-anchor:done — COMPLETE.
 Task: <task> (slug: <slug>)
 Acceptance criteria: <N>/<N> with evidence.
 Work Units: <N> complete.
@@ -111,10 +111,10 @@ Drift: <none | N resolved | N approved>.
 State: .claude/plan-anchor/<slug>.md
 ```
 
-Leave `current.txt` as-is. The user can `/anchor:start` a new task or `/anchor:switch` to another when ready.
+Leave `current.txt` as-is. The user can `/plan-anchor:start` a new task or `/plan-anchor:switch` to another when ready.
 
 ## Rules
 
 - Never edit the repo to make the gate pass (e.g., don't retroactively add evidence lines the user hasn't confirmed).
 - Never weaken a check to pass the gate. If something is genuinely untestable in this environment, the user records `blocked` with a reason; that is an acceptable resolution of C3.
-- Do not call `/anchor:done` automatically from other commands. It is a user-invoked gate.
+- Do not call `/plan-anchor:done` automatically from other commands. It is a user-invoked gate.

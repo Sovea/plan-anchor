@@ -25,13 +25,13 @@ How Plan Anchor resumes a task after context compaction, a new session, or an ex
 ## What triggers recovery
 
 - `SessionStart` hook fires (source ∈ `startup`, `resume`, `clear`, `compact`) and `current.txt` is non-empty.
-- User invokes `/anchor:resume [slug]` explicitly.
+- User invokes `/plan-anchor:resume [slug]` explicitly.
 - A fresh agent receives a Handoff section pasted as input.
 
 ## What does NOT trigger recovery
 
-- A new `/anchor:start` on a different slug. That starts a new task and does not touch other `<slug>.md` files.
-- `/anchor:switch <slug>` updates `current.txt` but does not run the full recovery sequence; it relies on the next tool use or user prompt to pick up the new task's state.
+- A new `/plan-anchor:start` on a different slug. That starts a new task and does not touch other `<slug>.md` files.
+- `/plan-anchor:switch <slug>` updates `current.txt` but does not run the full recovery sequence; it relies on the next tool use or user prompt to pick up the new task's state.
 
 ## Conflict resolution rules
 

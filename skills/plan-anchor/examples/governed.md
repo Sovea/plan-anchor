@@ -110,6 +110,6 @@ _None._
 
 - **Frontmatter first.** Hooks parse `slug`, `status`, and `active_wu` without reading the whole file.
 - **One active WU.** WU-2 is `active`, WU-1 is `complete`, WU-3 is `pending`. Guardrail G1 enforces this.
-- **AC1 has evidence on its own line.** AC2 and AC3 do not yet; `/anchor:done` will reject completion until they do.
+- **AC1 has evidence on its own line.** AC2 and AC3 do not yet; `/plan-anchor:done` will reject completion until they do.
 - **Verification rows are honest.** The component test and behavioral check are `not_run`, not a hopeful "passed".
 - **Handoff section is self-sufficient.** A fresh agent resuming from this file can identify the next tool call without reading the conversation history.

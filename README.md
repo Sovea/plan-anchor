@@ -10,7 +10,7 @@ The skill does this with three mechanisms, not twenty pages of protocol:
 
 - **A single state file** per task at `.claude/plan-anchor/<slug>.md`, tracked by `.claude/plan-anchor/current.txt`.
 - **Hooks** that enforce the rules (block edits outside the active Work Unit, inject state into every turn, flush handoff before compaction).
-- **`/anchor:*` slash commands** as the primary UI.
+- **`/plan-anchor:*` slash commands** as the primary UI.
 
 ## Install
 
@@ -22,10 +22,10 @@ The skill does this with three mechanisms, not twenty pages of protocol:
 ## Quick start
 
 ```text
-/anchor:start refactor-auth-middleware
+/plan-anchor:start refactor-auth-middleware
 ```
 
-Plan Anchor will capture the mission, acceptance criteria, plan, and Work Units into `.claude/plan-anchor/refactor-auth-middleware.md`, set it as current, and govern execution from there. Use `/anchor:status` any time to see where you are.
+Plan Anchor will capture the mission, acceptance criteria, plan, and Work Units into `.claude/plan-anchor/refactor-auth-middleware.md`, set it as current, and govern execution from there. Use `/plan-anchor:status` any time to see where you are.
 
 If you're not already in a session, a prose fallback also works:
 
@@ -35,13 +35,13 @@ If you're not already in a session, a prose fallback also works:
 
 | Command | Purpose |
 | --- | --- |
-| `/anchor:start <slug>` | Capture mission, AC, plan; create `<slug>.md`; set as current. |
-| `/anchor:status` | Print the current task's state in ~30 lines. |
-| `/anchor:drift` | Run a drift check against Plan, Non-Goals, and AC. |
-| `/anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |
-| `/anchor:resume [slug]` | Reload state, align with repo, announce the next action. |
-| `/anchor:switch <slug>` | Point `current.txt` at another existing task without running resume. |
-| `/anchor:done` | Completion gate — refuses unless every AC has evidence and all drift is resolved. |
+| `/plan-anchor:start <slug>` | Capture mission, AC, plan; create `<slug>.md`; set as current. |
+| `/plan-anchor:status` | Print the current task's state in ~30 lines. |
+| `/plan-anchor:drift` | Run a drift check against Plan, Non-Goals, and AC. |
+| `/plan-anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |
+| `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. |
+| `/plan-anchor:switch <slug>` | Point `current.txt` at another existing task without running resume. |
+| `/plan-anchor:done` | Completion gate — refuses unless every AC has evidence and all drift is resolved. |
 
 ## When to use
 
@@ -78,7 +78,7 @@ See `skills/plan-anchor/references/guardrails.md` for the five hard rules and wh
 
 The state file is intentionally small (soft cap ~2 KB) and gitignored by default. It contains mission, acceptance criteria, plan, Work Units, verification, drift log, and handoff — as sections of one Markdown file, not seven templates. See `skills/plan-anchor/state/template.md`.
 
-Layout per task, created by `/anchor:start`:
+Layout per task, created by `/plan-anchor:start`:
 
 ```
 .claude/plan-anchor/
@@ -94,7 +94,7 @@ Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, recovery semantics, the full `/anchor:*` command layer, and all six enforcement hooks are in place. The evaluation harness (M5) is the remaining piece.
+Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer, and all six enforcement hooks are in place. The evaluation harness (M5) is the remaining piece.
 
 ## License
 

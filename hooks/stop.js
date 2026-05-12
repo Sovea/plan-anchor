@@ -4,7 +4,7 @@
 // When Claude's main agent finishes a response, quietly refresh the Handoff
 // section of the active task. This means every pause — planned or not — leaves
 // a resume-ready state file on disk without the user having to run
-// /anchor:handoff.
+// /plan-anchor:handoff.
 //
 // The stop_hook_active guard prevents re-entry: Claude Code sets it when the
 // Stop hook is already on the stack, and we bail immediately in that case.
@@ -23,7 +23,7 @@ lib.safeMain(async () => {
   if (!state) return;
 
   // Skip refresh once a task is complete — the Handoff section was rewritten
-  // by /anchor:done into a completion summary that we don't want to overwrite.
+  // by /plan-anchor:done into a completion summary that we don't want to overwrite.
   if ((state.frontmatter.status || '').toLowerCase() === 'complete') return;
 
   const git = lib.gitFacts(projectDir);
