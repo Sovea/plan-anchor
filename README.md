@@ -41,7 +41,8 @@ If you're not already in a session, a prose fallback also works:
 | `/plan-anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |
 | `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. |
 | `/plan-anchor:switch <slug>` | Point `current.txt` at another existing task without running resume. |
-| `/plan-anchor:done` | Completion gate — refuses unless every AC has evidence and all drift is resolved. |
+| `/plan-anchor:next` | Smart dispatcher — read state and call the right sub-command. |
+| `/plan-anchor:done` | Completion gate — runs verification in a subagent, refuses unless every AC has evidence. |
 
 ## When to use
 
@@ -74,6 +75,17 @@ All hooks read `${CLAUDE_PROJECT_DIR}/.claude/plan-anchor/` and are fail-open �
 
 See `skills/plan-anchor/references/guardrails.md` for the five hard rules and why each exists.
 
+## Native integrations
+
+The `/plan-anchor:*` commands lean on Claude Code's built-in primitives instead of re-implementing them:
+
+| Primitive | Used by | Purpose |
+| --- | --- | --- |
+| **Plan mode** (`EnterPlanMode` / `ExitPlanMode`) | `/plan-anchor:start` (Plan phase), `/plan-anchor:drift` (replan on material drift) | Use the harness's built-in plan-approval UX instead of inventing one in prose. The user-approved plan text lands directly in `state.md`. |
+| **Tasks** (`TaskCreate` / `TaskUpdate` / `TaskList`) | `/plan-anchor:start` (decompose), `/plan-anchor:status` (render), `/plan-anchor:done` (close on success) | Each Work Unit is mirrored as a native Task with subject `[<slug>] WU-N: <goal>`, so per-WU progress shows in Claude Code's native task UI. `state.md` remains canonical. |
+| **Subagents** (`Agent`) | `/plan-anchor:drift` (Explore-type detector), `/plan-anchor:done` (general-purpose verifier) | Diff inspection and test/lint output run in isolated subagents. The main conversation only sees structured summaries — noisy log output never floods the main context. |
+| **Hooks** | the six scripts in `hooks/` | The enforcement layer (described below). Hooks fire at session/tool/compaction boundaries; commands fire on user invocation. |
+
 ## State file
 
 The state file is intentionally small (soft cap ~2 KB) and gitignored by default. It contains mission, acceptance criteria, plan, Work Units, verification, drift log, and handoff — as sections of one Markdown file, not seven templates. See `skills/plan-anchor/state/template.md`.
@@ -94,7 +106,7 @@ Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.1.0. The skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer, and all six enforcement hooks are in place. The evaluation harness (M5) is the remaining piece.
+Plan Anchor is at v0.1.0. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). Effectiveness measurement on real tasks is deferred to a separate, dedicated eval skill — not bundled into this repo.
 
 ## License
 

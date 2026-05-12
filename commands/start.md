@@ -1,7 +1,7 @@
 ---
-description: Create a new Plan Anchor task — capture mission, acceptance criteria, plan, and Work Units into .claude/plan-anchor/<slug>.md.
+description: Create a new Plan Anchor task — capture mission, acceptance criteria, plan (via plan mode), and Work Units (mirrored as native Tasks) into .claude/plan-anchor/<slug>.md.
 argument-hint: <task-slug>
-allowed-tools: [Read, Write, Edit, Bash]
+allowed-tools: [Read, Write, Edit, Bash, EnterPlanMode, ExitPlanMode, TaskCreate, TaskUpdate]
 ---
 
 Start a new Plan Anchor task with slug `$1`.
@@ -45,16 +45,20 @@ Walk the user through the five intake questions. Ask them in one turn when possi
 
 If any item is missing or would change the solution, ask before continuing. Don't fabricate answers. Refer to `skills/plan-anchor/references/guardrails.md` for why intake can't be skipped.
 
-## Plan
+## Plan (via plan mode)
 
-Based on intake, draft a plan the user can accept or edit:
+Plan Anchor delegates the Plan phase to Claude Code's native plan mode. This eliminates double-drafting (once for ExitPlanMode, once for state.md) and uses the harness's built-in approval UX.
 
-- **Approach**: 1–2 sentences. Name the chosen technical approach.
-- **Phases**: ordered list of implementation phases.
-- **Verification strategy**: how each AC will be checked.
-- **Drift guardrails**: constraints that must not be violated during execution.
+1. **Enter plan mode** with `EnterPlanMode`. Read whatever code you need to understand the task — `Read`, `Grep`, `Bash` for inspection are still allowed inside plan mode.
+2. **Draft the plan** as a structured document with these four sections (this format is what `ExitPlanMode` will surface to the user):
+   - **Approach**: 1–2 sentences naming the chosen technical approach.
+   - **Phases**: ordered list of implementation phases.
+   - **Verification strategy**: how each AC will be checked.
+   - **Drift guardrails**: constraints that must not be violated during execution.
+3. **Submit via `ExitPlanMode`**. The user accepts, rejects, or asks for revisions. Iterate until accepted.
+4. **Capture the approved plan verbatim**. The text the user just approved is what lands in state.md's Plan section — do not redraft it from memory.
 
-For architecture-sensitive or multi-file work, prefer plan mode for this step so the user can approve the plan explicitly.
+For trivial single-file tasks where plan mode would be overhead, the operator can decline plan mode at intake time and you draft the plan inline. Default is to use plan mode.
 
 ## Decompose
 
@@ -63,7 +67,19 @@ Break the plan into Work Units. Rules:
 - Each WU is independently verifiable.
 - Each WU maps to at least one AC. If a WU doesn't, either remove it or justify inline in its body.
 - One WU is marked `active` — usually WU-1. The rest are `pending`.
-- Assign each WU a concrete `Scope` (files / modules / areas it's allowed to touch). This field is what `pre_edit` hooks (M3) will check.
+- Assign each WU a concrete `Scope` (files / modules / areas it's allowed to touch). This field is what the `pre_edit` hook checks.
+
+### Mirror each WU as a native Task
+
+For each Work Unit you just declared, create a corresponding native Task so the user sees per-WU progress in Claude Code's native task UI alongside the state file:
+
+- Call `TaskCreate` with:
+  - `subject`: `[<slug>] WU-N: <one-line goal>` — the `[<slug>]` prefix lets `/plan-anchor:status` and `/plan-anchor:done` find this task later via `TaskList`.
+  - `description`: copy from the WU's body (Done-when conditions are useful here).
+  - `activeForm`: `Working on WU-N: <goal>`.
+- After all Tasks are created, call `TaskUpdate` on the Task for `WU-1` (the initially-active WU) to set `status: in_progress`. Leave the others as `pending`.
+
+State.md is the canonical record of WU state. The native Tasks are a presentation mirror managed by `/plan-anchor:start`, `/plan-anchor:done`, and `/plan-anchor:status`. Hooks do not touch Tasks.
 
 ## Write the state file
 

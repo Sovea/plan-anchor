@@ -26,10 +26,13 @@ lib.safeMain(async () => {
 
   const git = lib.gitFacts(projectDir);
   const mission = state.frontmatter.task || state.slug;
-  const source = input.source ? ` [${input.source}]` : '';
+
+  // Tailor the leading line to how this session started. SessionStart sets
+  // input.source to one of: 'startup' | 'resume' | 'clear' | 'compact'.
+  const heading = leadingLine(input.source, mission, state.slug);
 
   const lines = [];
-  lines.push(`[Plan Anchor resumed${source}] task="${mission}" (slug: ${state.slug}).`);
+  lines.push(heading);
   lines.push(
     `Work Units: ${completedCount} complete, ${active ? 'WU ' + active.id + ' active' : 'none active'}, ${remainingCount} remaining.`,
   );
@@ -39,3 +42,18 @@ lib.safeMain(async () => {
 
   lib.emitContext(lines.join('\n'));
 });
+
+function leadingLine(source, mission, slug) {
+  switch (source) {
+    case 'resume':
+      return `[Plan Anchor] Welcome back to "${mission}" (slug: ${slug}).`;
+    case 'clear':
+      return `[Plan Anchor] Context cleared, picking up "${mission}" (slug: ${slug}).`;
+    case 'compact':
+      return `[Plan Anchor] Resuming "${mission}" after compaction — handoff was just flushed (slug: ${slug}).`;
+    case 'startup':
+      return `[Plan Anchor] Active task: "${mission}" (slug: ${slug}).`;
+    default:
+      return `[Plan Anchor] Active task: "${mission}" (slug: ${slug}).`;
+  }
+}

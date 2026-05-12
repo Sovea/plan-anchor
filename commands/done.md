@@ -1,6 +1,6 @@
 ---
-description: Completion gate. Refuses to mark the task complete unless every AC has evidence, every WU is complete with evidence, all declared verification passed, and no drift is open.
-allowed-tools: [Read, Edit, Bash]
+description: Completion gate. Verifies in an isolated subagent that every AC has evidence, every WU is complete, all declared verification passed, and no drift is open. On success, marks all mirrored Tasks completed.
+allowed-tools: [Read, Edit, Bash, Agent, TaskList, TaskUpdate]
 ---
 
 Run the completion gate for the current Plan Anchor task. Enforces guardrails **G3** (evidence-gated completion) and **G5** (verification = what actually ran) from `skills/plan-anchor/references/guardrails.md`.
@@ -34,13 +34,26 @@ For each WU:
 
 Failures go in as `WU-N: <reason>`.
 
-### C3 — Verification
+### C3 — Verification (delegated to a subagent)
 
-For each row in the Verification table:
+Delegate execution of the Verification table to a `general-purpose` subagent so test/lint/build noise stays out of the main conversation. The main agent only sees the structured pass/fail summary the subagent returns.
 
-- If `status` is `passed`, `evidence` column must be non-empty.
+Call the `Agent` tool with:
+
+- `subagent_type`: `general-purpose`.
+- `description`: `Plan Anchor verification`.
+- `prompt`: a self-contained spec that includes:
+  - The full Verification table from the state file (paste verbatim).
+  - The full Acceptance Criteria block, so the subagent can map results back to ACs.
+  - Instructions: for each row, run the `command_or_method` if any. Capture exit status and a one-line summary of stdout/stderr. For each AC, decide whether the verification rows that cover it all passed.
+  - Required output shape (compact JSON or a 4-column markdown table, the subagent's choice — but exactly these columns): `layer | command | status (passed/failed/blocked/not_run) | one-line evidence`. Plus a per-AC summary: `AC<N>: passed | failed | partial`. Cap output at ~300 words; do NOT paste raw test output.
+
+Then apply C3:
+
+- If `status` from the subagent is `passed`, copy its one-line evidence into the state file's Verification table for that row.
 - If `status` is `not_run` and the layer is referenced by any `Plan.Verification strategy` bullet, mark as failure — something planned was never run.
-- If `status` is `blocked` or `skipped`, the `evidence` column must explain why (environment constraint, intentional skip with reason).
+- If `status` is `blocked` or `skipped`, the subagent's evidence must explain why; otherwise mark as failure.
+- If `status` is `failed`, mark as failure with the subagent's one-line summary.
 
 Failures: `Verification.<layer>: <reason>`.
 
@@ -98,6 +111,12 @@ Update the state file:
    - AC2: <one-line evidence>
    ...
    ```
+
+Then close the mirrored native Tasks:
+
+- Call `TaskList` and filter the results where `subject` starts with `[<slug>] WU-`.
+- For each matching Task whose `status` is not already `completed`, call `TaskUpdate` with `status: completed`.
+- If a WU on the state side is `complete` but no matching Task is found, log a one-line warning ("WU-N has no mirrored Task") but do not fail the gate — older tasks created before M6 won't have Tasks.
 
 Then print:
 
