@@ -22,6 +22,15 @@ lib.safeMain(async () => {
   const filePath = toolInput.file_path || toolInput.path || '';
   if (!filePath) return; // tool without a file target — nothing to gate
 
+  // Exempt Plan Anchor's own state directory. The /plan-anchor:* commands
+  // write the state file, the drift log, the handoff section, and completion
+  // status via Edit — these are the plugin editing its own home, not user
+  // code. Gating them with G1 would have the plugin block itself.
+  const rel = lib.normalizePath(filePath, projectDir);
+  if (rel === '.claude/plan-anchor' || rel.startsWith('.claude/plan-anchor/')) {
+    return;
+  }
+
   const active = lib.findActiveWU(state);
   if (!active) {
     lib.blockPreTool(
@@ -31,7 +40,6 @@ lib.safeMain(async () => {
   }
 
   if (!lib.inScope(filePath, active, projectDir)) {
-    const rel = lib.normalizePath(filePath, projectDir);
     lib.blockPreTool(
       `[Plan Anchor · G1] Edit target "${rel}" is outside the active Work Unit's scope. ` +
         `${active.id} allows: [${active.scope.join(', ') || '(empty)'}]. ` +
