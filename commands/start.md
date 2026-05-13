@@ -20,7 +20,7 @@ Start a new Plan Anchor task. `$1` is a free-form task description (e.g. `refact
    - If it exists and `status: complete` → ask whether to open a new task with a different slug or re-open this one.
    - If it exists and `status: active|blocked` → don't overwrite. Suggest `/plan-anchor:resume <slug>` and stop.
    - If it does not exist → proceed. If the derived slug would collide with an existing-and-active task but the new description is clearly unrelated, append a short disambiguator (e.g. `-v2`) before falling through to the collision branches above.
-4. **Surface the slug in the same turn as the intake questions** (see Intake below) — show the user the proposed slug at the top of that turn so they can override it inline. Do not spend a separate round just to confirm the slug. If the user supplies a replacement, validate it against `^[a-z][a-z0-9-]{1,59}$` and use it; otherwise the derived slug stands.
+4. **Judge task clarity before entering plan mode.** If `$1` is concrete enough to ground a meaningful Mission and Acceptance Criteria — i.e. it names *what* and gives at least a hint of what "done" looks like — proceed. If it isn't (e.g. `fix it`, `improve performance`, `clean it up`), ask one short clarifying question and wait for the answer before continuing. Use judgment, not heuristics: don't enforce length or word-count thresholds. The bar is "can I draft a contract that wouldn't just be padding?" — not "did the user type enough characters." The slug itself does not need a separate confirmation round; it'll be surfaced for review inside the plan-mode submission below.
 
 ## Repository setup
 
@@ -40,38 +40,59 @@ Do **not** modify the repo's root `.gitignore`.
 
 Tell the user in one line what you did ("created .claude/plan-anchor/.gitignore" or "already present").
 
-## Intake
-
-Walk the user through the five intake questions. Ask them in one turn when possible; don't fire separate questions unless the answer genuinely needs clarification. Keep the user's answers compact — bullets, not paragraphs.
-
-Open the turn with a one-line slug preview the user can override inline, e.g.:
-
-> `Proposed slug: refactor-auth-middleware. Reply with a different slug if you'd like to change it; otherwise just answer the questions below.`
-
-Then ask:
-
-1. **Mission**: one sentence describing the outcome.
-2. **Scope**: what's in.
-3. **Non-goals**: what's explicitly out.
-4. **Constraints**: technical, product, time, compatibility, security, process.
-5. **Acceptance criteria**: observable conditions; aim for 2–5. Each becomes AC1, AC2, …
-
-If the user's reply contains a replacement slug, validate and use it (re-run the collision check from Preconditions step 3 against the new slug before continuing). If any intake item is missing or would change the solution, ask before continuing. Don't fabricate answers. Refer to `skills/plan-anchor/references/guardrails.md` for why intake can't be skipped.
-
 ## Plan (via plan mode)
 
-Plan Anchor delegates the Plan phase to Claude Code's native plan mode. This eliminates double-drafting (once for ExitPlanMode, once for state.md) and uses the harness's built-in approval UX.
+Plan Anchor delegates the entire contract + plan to Claude Code's native plan mode. There is **no separate intake turn** — the plan-mode submission is the single review point where the user confirms slug, Mission, Scope, Non-Goals, Constraints, AC, and the technical plan in one consolidated approval. Anything the user wanted to constrain upfront either lives in `$1` already or gets corrected during the plan-mode review.
 
-1. **Enter plan mode** with `EnterPlanMode`. Read whatever code you need to understand the task — `Read`, `Grep`, `Bash` for inspection are still allowed inside plan mode.
-2. **Draft the plan** as a structured document with these four sections (this format is what `ExitPlanMode` will surface to the user):
-   - **Approach**: 1–2 sentences naming the chosen technical approach.
-   - **Phases**: ordered list of implementation phases.
-   - **Verification strategy**: how each AC will be checked.
-   - **Drift guardrails**: constraints that must not be violated during execution.
-3. **Submit via `ExitPlanMode`**. The user accepts, rejects, or asks for revisions. Iterate until accepted.
-4. **Capture the approved plan verbatim**. The text the user just approved is what lands in state.md's Plan section — do not redraft it from memory.
+1. **Enter plan mode** with `EnterPlanMode`. Read whatever code you need to ground the draft — `Read`, `Grep`, `Bash` for inspection are still allowed inside plan mode. Before drafting, **extract any Non-Goals or Constraints already present in `$1`** (e.g. "without breaking v1 clients", "don't touch the payment module") so they're recorded as user-supplied rather than inferred.
+2. **Draft the contract + plan** as one structured document, in **this exact order**. The contract sections come *before* the technical plan because they're the highest-stakes part of the review and the easiest to rubber-stamp. Use this template:
 
-For trivial single-file tasks where plan mode would be overhead, the operator can decline plan mode at intake time and you draft the plan inline. Default is to use plan mode.
+   ```
+   Proposed slug: <slug> — reply with a different slug if you'd like to change it.
+
+   > The five contract sections below were drafted from your task description plus a code read.
+   > **Please review and correct as needed before accepting** — this contract is what
+   > /plan-anchor:done refuses to skip and /plan-anchor:drift checks against.
+
+   ## Mission *(draft — confirm or correct)*
+   <one sentence stating the outcome, derived from $1 and refined by the code read>
+
+   ## Scope (in) *(draft — confirm or correct)*
+   - <files / modules / behaviors the task will touch — bound this, vague scope is the failure mode>
+
+   ## Non-Goals *(draft — confirm or correct)*
+   - <items extracted verbatim from $1 if any>
+   - <items inferred from the code (e.g. "don't change the public signature of X — N callers depend on it")>
+   - If, after reading the code, you genuinely cannot infer any, write a single bullet:
+     `_None inferred — please add any out-of-scope items you have in mind._`
+
+   ## Constraints *(draft — confirm or correct)*
+   - <items extracted verbatim from $1 if any>
+   - <items inferred from code/repo (e.g. "lockfile is pinned — no new runtime deps", "public API exported via /src/index.ts must stay stable")>
+   - If none inferred, write `_None inferred — please add any constraints you have in mind._`
+
+   ## Acceptance Criteria *(draft — confirm or correct)*
+   - **AC1** — <observable condition>
+   - **AC2** — <observable condition>
+   - <2–5 total, each numbered, each observable — not "code is clean">
+
+   ---
+
+   ## Approach
+   <1–2 sentences naming the chosen technical approach>
+
+   ## Phases
+   <ordered list of implementation phases>
+
+   ## Verification strategy
+   <how each AC will be checked, referencing AC ids>
+
+   ## Drift guardrails
+   <the Constraints above + any architectural invariants the plan depends on staying true>
+   ```
+
+3. **Submit via `ExitPlanMode`**. The user accepts, rejects, or asks for revisions. Revisions to **slug, any contract section, or the technical plan** are all first-class — redraft and resubmit. Iterate until accepted. If the user pushes back on a Non-Goal or Constraint specifically, treat that as a higher-trust correction (it's tacit knowledge the agent couldn't have known).
+4. **Capture the approved submission verbatim**. Everything the user just approved lands in state.md as-is — do not redraft from memory. Drop the `(draft — confirm or correct)` markers and the leading instruction blockquote; the contract is now canonical and the guardrails (G3, G4) gate against it.
 
 ## Decompose
 
@@ -98,11 +119,13 @@ State.md is the canonical record of WU state. The native Tasks are a presentatio
 
 Render the state using the template at `skills/plan-anchor/state/template.md`:
 
-1. Fill frontmatter: `task` (human-readable — derive from `$1`, not the slug), `slug` (the final slug from Preconditions/Intake — derived or user-overridden), `status: active`, `created` and `updated` = current ISO 8601 UTC, `active_wu: WU-1`.
-2. Fill every section from the intake, plan, and decomposition above.
-3. `Verification` table: include only the layers that will actually be used; mark all rows `not_run`.
-4. `Drift Log`: leave as `_None._`.
-5. `Handoff`: write the minimal initial handoff so a fresh agent could resume immediately.
+1. Fill frontmatter: `task` (human-readable — derive from `$1`), `slug` (the final slug as approved in the plan-mode submission — derived or user-overridden), `status: active`, `created` and `updated` = current ISO 8601 UTC, `active_wu: WU-1`.
+2. Fill **Mission**, **Scope**, **Non-Goals**, **Constraints**, and **Acceptance Criteria** from the approved plan-mode submission. Strip the `(draft — confirm or correct)` markers — the contract is canonical now.
+3. Fill **Plan** (Approach / Phases / Verification strategy / Drift guardrails) from the approved plan-mode submission.
+4. Fill **Work Units** from the Decompose step above.
+5. `Verification` table: include only the layers that will actually be used; mark all rows `not_run`.
+6. `Drift Log`: leave as `_None._`.
+7. `Handoff`: write the minimal initial handoff so a fresh agent could resume immediately.
 
 Write the file to `.claude/plan-anchor/<slug>.md` using the Write tool.
 

@@ -31,7 +31,7 @@ Plan Anchor is delivered as three layers, not as prose:
 
 ## Core flow
 
-1. **Intake** — capture mission, scope, non-goals, constraints, acceptance criteria. Ask before coding if any missing item could change the solution.
+1. **Intake** — the agent drafts the full task contract (mission, scope, non-goals, constraints, AC) inside plan mode after reading the code, then surfaces it via `ExitPlanMode` for the user to confirm or correct. The user supplies nothing upfront beyond the task description and a clarifying answer if the description is too vague to ground a contract.
 2. **Plan** — name the approach, phases, verification strategy, and drift guardrails. Use plan mode for architecture-sensitive work.
 3. **Decompose** — break the plan into Work Units, each mapped to at least one acceptance criterion. Only one Work Unit may be `active`.
 4. **Execute** — before each edit, state the active Work Unit and confirm the file being changed is in its scope.
