@@ -31,7 +31,8 @@ How Plan Anchor resumes a task after context compaction, a new session, or an ex
 ## What does NOT trigger recovery
 
 - A new `/plan-anchor:start` on a different slug. That starts a new task and does not touch other `<slug>.md` files.
-- `/plan-anchor:switch <slug>` updates `current.txt` but does not run the full recovery sequence; it relies on the next tool use or user prompt to pick up the new task's state.
+
+`/plan-anchor:resume <slug>` *does* switch the active task and run recovery — it is the single entry point for both "recover the current task" (no arg) and "switch + recover" (with arg). There is no separate pointer-only switch command.
 
 ## Conflict resolution rules
 

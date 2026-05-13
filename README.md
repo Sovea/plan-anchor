@@ -39,8 +39,7 @@ If you're not already in a session, a prose fallback also works:
 | `/plan-anchor:status` | Print the current task's state in ~30 lines. |
 | `/plan-anchor:drift` | Run a drift check against Plan, Non-Goals, and AC. |
 | `/plan-anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |
-| `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. |
-| `/plan-anchor:switch <slug>` | Point `current.txt` at another existing task without running resume. |
+| `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. With a slug, also switches the active task first. |
 | `/plan-anchor:next` | Smart dispatcher — read state and call the right sub-command. |
 | `/plan-anchor:done` | Completion gate — runs verification in a subagent, refuses unless every AC has evidence. |
 

@@ -26,7 +26,7 @@ Plan Anchor is delivered as three layers, not as prose:
 
 - **State file** — one Markdown file per task at `.claude/plan-anchor/<slug>.md`, with the active slug tracked in `.claude/plan-anchor/current.txt`. This file is the single source of truth for mission, plan, Work Units, verification, drift, and handoff. See `state/template.md`.
 - **Hooks** — six Node.js hooks at the plugin root (`hooks/hooks.json` + `hooks/*.js`) enforce the guardrails automatically: `SessionStart` injects a resume brief, `UserPromptSubmit` injects active WU + open drift + loop warning each turn, `PreToolUse` on `Edit|Write|MultiEdit` **blocks** edits outside the active WU's scope, `PostToolUse` maintains the local-fix loop counter in a sidecar (`.meta.json`), `PreCompact` flushes Handoff before compaction, `Stop` quietly refreshes Handoff so every pause leaves a resume-ready state file.
-- **Commands** — `/plan-anchor:start`, `/plan-anchor:status`, `/plan-anchor:drift`, `/plan-anchor:handoff`, `/plan-anchor:resume`, `/plan-anchor:switch`, `/plan-anchor:next`, `/plan-anchor:done`. These are the primary UI; prose triggers are a fallback only. Definitions live in `commands/*.md`.
+- **Commands** — `/plan-anchor:start`, `/plan-anchor:status`, `/plan-anchor:drift`, `/plan-anchor:handoff`, `/plan-anchor:resume`, `/plan-anchor:next`, `/plan-anchor:done`. These are the primary UI; prose triggers are a fallback only. Definitions live in `commands/*.md`. `/plan-anchor:resume <slug>` doubles as the task-switch entry point.
 - **Native-primitive integration** — commands lean on plan mode for the Plan phase and for drift replanning, mirror Work Units as native Tasks for the harness UI, and delegate verification / drift-detection to subagents so noisy log output never floods the main conversation.
 
 ## Core flow
@@ -53,7 +53,7 @@ Load these files only when needed:
 - `state/template.md` — canonical state file shape.
 - `references/guardrails.md` — the 5 hard rules.
 - `references/recovery.md` — resume semantics and conflict resolution.
-- `commands/*.md` (at plugin root) — slash-command definitions: `start`, `status`, `drift`, `handoff`, `resume`, `switch`, `next`, `done`.
+- `commands/*.md` (at plugin root) — slash-command definitions: `start`, `status`, `drift`, `handoff`, `resume`, `next`, `done`.
 - `hooks/hooks.json` + `hooks/*.js` (at plugin root) — enforcement hooks and the shared parser in `hooks/lib/state.js`.
 - `examples/governed.md` — a filled-in state file for a multi-Work-Unit feature.
 - `examples/resume.md` — a resume-from-handoff walkthrough.

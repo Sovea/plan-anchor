@@ -130,7 +130,7 @@ Drift: <none | N resolved | N approved>.
 State: .claude/plan-anchor/<slug>.md
 ```
 
-Leave `current.txt` as-is. The user can `/plan-anchor:start` a new task or `/plan-anchor:switch` to another when ready.
+Leave `current.txt` as-is. The user can `/plan-anchor:start` a new task or `/plan-anchor:resume <slug>` to switch to another when ready.
 
 ## Rules
 

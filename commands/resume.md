@@ -1,14 +1,16 @@
 ---
-description: Resume a Plan Anchor task. Reloads state, aligns with repo, emits a 4–6 line recovery summary, and names the smallest next action.
+description: Resume a Plan Anchor task. With a slug, switches the active task first; then reloads state, aligns with repo, emits a 4–6 line recovery summary, and names the smallest next action.
 argument-hint: [task-slug]
 allowed-tools: [Read, Edit, Bash]
 ---
 
 Resume a Plan Anchor task. Follow the 6-step sequence from `skills/plan-anchor/references/recovery.md`.
 
+Passing a slug (`/plan-anchor:resume <slug>`) is the supported way to switch the active task: it points `current.txt` at `<slug>` and then runs the full recovery sequence below. With no slug, recovers whichever task `current.txt` already names.
+
 ## 1. Locate the active task
 
-- If `$1` is provided: write it to `.claude/plan-anchor/current.txt` (overwrite) before continuing.
+- If `$1` is provided: verify `.claude/plan-anchor/$1.md` exists. If it does not, list existing `.claude/plan-anchor/*.md` slugs (excluding `current.txt`) and stop with `No task "<slug>". Use /plan-anchor:start <task description> to create it, or one of: <list of existing slugs>.` — do **not** touch `current.txt`. If it exists, write `$1` to `.claude/plan-anchor/current.txt` (overwrite) before continuing.
 - Read `.claude/plan-anchor/current.txt`. Let `slug` be its single line.
 - If `current.txt` is missing/empty and no `$1` was provided: list existing `.claude/plan-anchor/*.md` files (excluding `current.txt`) and ask the user which to resume, or suggest `/plan-anchor:start <task description>`.
 
@@ -70,3 +72,4 @@ Do not start editing in the same turn as the recovery summary — hand control b
 - At the start of a new Claude Code session that should continue prior Plan Anchor work.
 - After a context compaction, if the `SessionStart` hook (M3) isn't yet installed.
 - Any time the state file and the repo seem out of sync.
+- To switch to another existing task — `/plan-anchor:resume <slug>` repoints `current.txt` and runs the full recovery sequence in one step.
