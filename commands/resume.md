@@ -10,7 +10,7 @@ Resume a Plan Anchor task. Follow the 6-step sequence from `skills/plan-anchor/r
 
 - If `$1` is provided: write it to `.claude/plan-anchor/current.txt` (overwrite) before continuing.
 - Read `.claude/plan-anchor/current.txt`. Let `slug` be its single line.
-- If `current.txt` is missing/empty and no `$1` was provided: list existing `.claude/plan-anchor/*.md` files (excluding `current.txt`) and ask the user which to resume, or suggest `/plan-anchor:start <slug>`.
+- If `current.txt` is missing/empty and no `$1` was provided: list existing `.claude/plan-anchor/*.md` files (excluding `current.txt`) and ask the user which to resume, or suggest `/plan-anchor:start <task description>`.
 
 ## 2. Load state
 

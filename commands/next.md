@@ -7,7 +7,7 @@ Read the current Plan Anchor state and decide which sub-command should run next,
 
 ## Resolve the current task
 
-1. Read `.claude/plan-anchor/current.txt`. If missing or empty, **print** `No active Plan Anchor task. Use /plan-anchor:start <slug> to begin.` and stop. Do not invoke any other command.
+1. Read `.claude/plan-anchor/current.txt`. If missing or empty, **print** `No active Plan Anchor task. Use /plan-anchor:start <task description> to begin.` and stop. Do not invoke any other command.
 2. Read `.claude/plan-anchor/<slug>.md`. If the file is missing, print `current.txt points at "<slug>" but .claude/plan-anchor/<slug>.md is missing — repair manually or re-run /plan-anchor:start.` and stop.
 
 ## Decide
@@ -17,7 +17,7 @@ Apply these rules **in order**. The first matching rule wins; later rules don't 
 | # | Condition | Action | Why |
 | --- | --- | --- | --- |
 | 1 | `Drift Log` has any row with `status: open` | invoke `/plan-anchor:drift` | Open drift blocks safe progress; resolve before anything else. |
-| 2 | Frontmatter `status` is `complete` already | invoke `/plan-anchor:status` and add a one-line note: `Task is complete. Use /plan-anchor:start <slug> for a new one or /plan-anchor:switch <slug>.` | Nothing left to do on this task. |
+| 2 | Frontmatter `status` is `complete` already | invoke `/plan-anchor:status` and add a one-line note: `Task is complete. Use /plan-anchor:start <task description> for a new one or /plan-anchor:switch <slug>.` | Nothing left to do on this task. |
 | 3 | Every Work Unit has `status: complete` (and overall task status is not `complete` yet) | invoke `/plan-anchor:done` | The completion gate should run; failures will be surfaced. |
 | 4 | The active Work Unit has every `Done when` checkbox `[x]` but its own status is still `active` | invoke `/plan-anchor:done` | Same as above — the gate decides whether to advance. |
 | 5 | No active Work Unit but at least one is `pending` | print `Promote the next pending WU to active. Suggested next: <WU-id>: <goal>. Edit .claude/plan-anchor/<slug>.md to set its status to active and update active_wu in frontmatter.` then stop. | The user (or next /plan-anchor:start invocation) needs to choose. We don't auto-promote. |

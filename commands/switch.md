@@ -10,7 +10,7 @@ Switch the `current.txt` pointer to task `$1`.
 
 1. If `$1` is empty or missing, list existing `.claude/plan-anchor/*.md` slugs (excluding `current.txt`) and ask the user which to switch to. Do not proceed without a slug.
 2. Verify `.claude/plan-anchor/$1.md` exists. If not:
-   - Output `No task "<slug>". Use /plan-anchor:start <slug> to create it, or one of: <list of existing slugs>.`
+   - Output `No task "<slug>". Use /plan-anchor:start <task description> to create it, or one of: <list of existing slugs>.`
    - Stop.
 
 ## Switch

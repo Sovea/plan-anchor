@@ -22,10 +22,10 @@ The skill does this with three mechanisms, not twenty pages of protocol:
 ## Quick start
 
 ```text
-/plan-anchor:start refactor-auth-middleware
+/plan-anchor:start refactor the auth middleware
 ```
 
-Plan Anchor will capture the mission, acceptance criteria, plan, and Work Units into `.claude/plan-anchor/refactor-auth-middleware.md`, set it as current, and govern execution from there. Use `/plan-anchor:status` any time to see where you are.
+Plan Anchor derives a slug from the description (here, `refactor-auth-middleware`), then captures the mission, acceptance criteria, plan, and Work Units into `.claude/plan-anchor/refactor-auth-middleware.md`, sets it as current, and governs execution from there. Use `/plan-anchor:status` any time to see where you are.
 
 If you're not already in a session, a prose fallback also works:
 
@@ -35,7 +35,7 @@ If you're not already in a session, a prose fallback also works:
 
 | Command | Purpose |
 | --- | --- |
-| `/plan-anchor:start <slug>` | Capture mission, AC, plan; create `<slug>.md`; set as current. |
+| `/plan-anchor:start <task description>` | Derive a slug from the description; capture mission, AC, plan; create `<slug>.md`; set as current. |
 | `/plan-anchor:status` | Print the current task's state in ~30 lines. |
 | `/plan-anchor:drift` | Run a drift check against Plan, Non-Goals, and AC. |
 | `/plan-anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |

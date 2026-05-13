@@ -10,7 +10,7 @@ Print the current Plan Anchor task's state. Read-only — do not modify any file
 1. Read `.claude/plan-anchor/current.txt`. If missing or empty, output:
 
    ```
-   No active Plan Anchor task. Use /plan-anchor:start <slug> to begin.
+   No active Plan Anchor task. Use /plan-anchor:start <task description> to begin.
    ```
 
    and stop.
