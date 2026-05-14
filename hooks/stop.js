@@ -22,10 +22,6 @@ lib.safeMain(async () => {
   const state = lib.loadState(projectDir);
   if (!state) return;
 
-  // Skip refresh once a task is complete — the Handoff section was rewritten
-  // by /plan-anchor:done into a completion summary that we don't want to overwrite.
-  if ((state.frontmatter.status || '').toLowerCase() === 'complete') return;
-
   const git = lib.gitFacts(projectDir);
   const handoff = lib.renderHandoffSection(state, git);
   lib.writeHandoffSection(state, handoff);

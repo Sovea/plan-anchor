@@ -118,6 +118,8 @@ Then close the mirrored native Tasks:
 - For each matching Task whose `status` is not already `completed`, call `TaskUpdate` with `status: completed`.
 - If a WU on the state side is `complete` but no matching Task is found, log a one-line warning ("WU-N has no mirrored Task") but do not fail the gate — older tasks created before M6 won't have Tasks.
 
+Then detach Plan Anchor by truncating `.claude/plan-anchor/current.txt` to empty. With no current slug, every Plan Anchor hook becomes a no-op on the next turn — the user is back to a default Claude Code session. The state file stays on disk with `status: complete` for record-keeping; `/plan-anchor:resume <slug>` re-engages it later.
+
 Then print:
 
 ```
@@ -128,9 +130,9 @@ Work Units: <N> complete.
 Verification: <summary of passed layers>.
 Drift: <none | N resolved | N approved>.
 State: .claude/plan-anchor/<slug>.md
-```
 
-Leave `current.txt` as-is. The user can `/plan-anchor:start` a new task or `/plan-anchor:resume <slug>` to switch to another when ready.
+Plan Anchor is now detached. Run /plan-anchor:resume <slug> to re-engage this task, or /plan-anchor:start to begin a new one.
+```
 
 ## Rules
 
