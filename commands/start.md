@@ -144,4 +144,4 @@ Active: WU-1 — <goal>
 Next: <smallest next action>
 ```
 
-Do not take any further implementation action in this turn. The next user prompt or tool use continues the work.
+Then continue in the same turn: read WU-1's first unchecked `Done when` item and begin implementing it. The user just approved the plan — they don't need to issue another prompt to start coding. The `pre_edit` hook will attach to WU-1 on the first edit and gate scope from there.

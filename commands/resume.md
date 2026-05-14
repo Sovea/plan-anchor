@@ -1,7 +1,7 @@
 ---
-description: Resume a Plan Anchor task. With a slug, switches the active task first; then reloads state, aligns with repo, emits a 4–6 line recovery summary, and names the smallest next action.
+description: Resume a Plan Anchor task. With a slug, switches the active task first; then reloads state, aligns with repo, emits a 4–6 line recovery summary, names the smallest next action, and continues with it.
 argument-hint: [task-slug]
-allowed-tools: [Read, Edit, Bash]
+allowed-tools: [Read, Edit, Write, MultiEdit, Bash, Grep, Glob]
 ---
 
 Resume a Plan Anchor task. Follow the 6-step sequence from `skills/plan-anchor/references/recovery.md`.
@@ -65,7 +65,7 @@ Open blockers / drift: <none | one-line summary>.
 Next: <imperative>.
 ```
 
-Do not start editing in the same turn as the recovery summary — hand control back to the user or to the next tool call, so hooks (when present) can attach to the right Work Unit.
+Then continue in the same turn with the smallest next action you just identified. The `pre_edit` hook reads state at edit time and will attach to the active WU correctly — there is no need to wait for a fresh turn.
 
 ## When to invoke
 
