@@ -109,7 +109,7 @@ Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.1.0. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). The governance layer is feature-complete; effectiveness measurement on real tasks is deferred to a separate, dedicated eval skill — not bundled into this repo.
+Plan Anchor is at v0.0.1 — early and unstable. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). The governance layer is feature-complete in shape, but has not been validated at scale; expect rough edges. 
 
 ## License
 

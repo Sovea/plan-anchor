@@ -1,7 +1,7 @@
 ---
 name: plan-anchor
 description: Use when the user types a `/plan-anchor:*` command or says "use plan anchor" — or when a long, multi-file, architecture-sensitive task clearly needs drift control, loop-breaking, or resumable handoff.
-version: 0.1.0
+version: 0.0.1
 ---
 
 # Plan Anchor

@@ -529,6 +529,7 @@ function blockPreTool(reason) {
     decision: 'block',
     reason,
     hookSpecificOutput: {
+      hookEventName: 'PreToolUse',
       permissionDecision: 'deny',
       permissionDecisionReason: reason,
     },

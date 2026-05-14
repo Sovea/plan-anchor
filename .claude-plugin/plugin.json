@@ -1,7 +1,7 @@
 {
   "name": "plan-anchor",
-  "version": "0.1.0",
-  "description": "Keeps Claude Code on mission across long tasks: no drift, no dropouts across compaction, no false completion.",
+  "version": "0.0.1",
+  "description": "Lightweight execution governance for Claude Code: makes silent drift, lost context across compaction, and false completion harder on long tasks.",
   "author": {
     "name": "Sovea",
     "url": "https://github.com/Sovea"
