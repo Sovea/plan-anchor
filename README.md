@@ -46,6 +46,7 @@ If you're not already in a session, a prose fallback also works:
 | `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. With a slug, also switches the active task first. |
 | `/plan-anchor:next` | Smart dispatcher — read state and call the right sub-command. |
 | `/plan-anchor:done` | Completion gate — runs verification in a subagent, refuses unless every AC has evidence. |
+| `/plan-anchor:revise [slug]` | Layer a revision onto any task — new ACs/WUs appended via plan mode. Defaults to the current task. `complete` flips back to `active`; `active`/`blocked` keep their current WU and queue new ones. Warns from the 3rd revision. |
 
 ## When to use
 
@@ -109,7 +110,7 @@ Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.0.1 — early and unstable. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). The governance layer is feature-complete in shape, but has not been validated at scale; expect rough edges. 
+Plan Anchor is at v0.0.1 — early and unstable. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next` and `:revise`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). The governance layer is feature-complete in shape, but has not been validated at scale; expect rough edges. 
 
 ## License
 

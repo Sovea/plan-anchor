@@ -19,6 +19,14 @@ This file is the single source of truth for one Plan Anchor task.
 - Hooks read `current.txt` → this file on every edit, prompt, and session start.
 - Do not store secrets, credentials, tokens, or unrelated project notes here.
 - Keep the file compact (soft cap ~2 KB). Compress completed Work Units to one line.
+- `status: complete` is not terminal — `/plan-anchor:revise [<slug>]` re-opens
+  any task (complete / active / blocked) and appends a `## Revision N` block
+  under the trailing `# Revisions` section. The `complete → active` flip and
+  the `active_wu` retarget are conditional: they only happen when the prior
+  status was `complete`. On an already-`active` or `blocked` task, status and
+  active_wu are preserved so the existing WU isn't preempted; new revision
+  WUs queue as `pending`. Earlier revisions and original evidence are always
+  preserved; readers should never assume `complete` is forever.
 -->
 
 # Mission
@@ -114,3 +122,33 @@ for a fresh agent to resume without reading conversation history.
 - Files touched: [path — why relevant]
 - Open blockers: [or "None"]
 - Smallest next action: [exact next step for the resuming agent]
+
+# Revisions
+
+<!--
+Appended by `/plan-anchor:revise <slug>` whenever a `status: complete` task needs
+follow-on changes instead of a brand-new task.
+
+- Append-only: each call adds a new `## Revision N` block; never modify or delete
+  earlier entries — the original record (Mission, AC checkmarks, evidence) stays.
+- A revise call also flips frontmatter `status` back to `active`, retargets
+  `active_wu` to the first new revision WU, bumps `updated`, appends new ACs to
+  Acceptance Criteria, and appends new WUs to Work Units. Modified ACs are
+  rewritten in place with checkbox reset to `[ ]` and evidence cleared; the
+  modification is recorded below.
+- Revisions 1 and 2 are silent. From the 3rd onward an explicit warning line
+  is included both in command stdout and in the entry below — that's a soft
+  signal, never a hard block.
+- Keep each entry to ~3-5 lines: AC and WU details live in their canonical
+  sections, not here.
+-->
+
+_None._
+
+## Revision N — [ISO 8601 UTC]
+
+- Reason: [one-line why this revision is happening]
+- New ACs: [AC<X>, AC<Y>] (or `_none_`)
+- Modified ACs: [AC<Z> — what changed; checkbox reset to `[ ]` and evidence cleared] (or `_none_`)
+- New WUs: [WU-<N>, WU-<N+1>] (or `_none_`)
+- Warning: [included only when N ≥ 3 — "Revision N — consider whether this work warrants a new task (`/plan-anchor:start`)."]
