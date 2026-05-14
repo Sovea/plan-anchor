@@ -1,14 +1,18 @@
 # Plan Anchor
 
-**Plan Anchor keeps Claude Code on mission across many turns.** It makes three promises for long, complex coding tasks:
+**A lightweight execution governance layer for Claude Code that keeps complex implementation anchored to mission, acceptance criteria, verification, and handoff state.**
 
-1. **No drift.** Scope, architecture, API contracts, and acceptance criteria cannot silently change.
-2. **No dropouts.** State survives context compaction and session restart without user intervention.
-3. **No false completion.** A task cannot be marked done until every acceptance criterion has recorded evidence.
+Three failure modes it tries to make harder:
 
-The skill does this with three mechanisms, not twenty pages of protocol:
+1. **Silent drift.** Scope, architecture, API, or AC changes get pushed into a Drift Log instead of being absorbed into the work without notice.
+2. **Lost context.** Mission, plan, and progress live in a state file that's designed to survive context compaction and session restart, so resume is usually one command away.
+3. **False completion.** Marking a task done is gated on a recorded check per acceptance criterion, not on "looks right to me."
 
-- **A single state file** per task at `.claude/plan-anchor/<slug>.md`, tracked by `.claude/plan-anchor/current.txt`.
+It won't catch everything — a determined agent can still talk its way around any of these — but the goal is to make each failure visible enough that you, or the next session, notices.
+
+Governance is delivered through three mechanisms, not twenty pages of protocol:
+
+- **A single state file** per task at `.claude/plan-anchor/<slug>.md`, tracked by `.claude/plan-anchor/current.txt` — the canonical record of mission, AC, verification, and handoff.
 - **Hooks** that enforce the rules (block edits outside the active Work Unit, inject state into every turn, flush handoff before compaction).
 - **`/plan-anchor:*` slash commands** as the primary UI.
 
@@ -59,7 +63,7 @@ If you're not already in a session, a prose fallback also works:
 
 ## Hooks
 
-Plan Anchor is not a protocol document the agent is asked to remember. The five hard rules are enforced at the harness level through six plugin-registered hooks:
+Governance is enforced at the harness level, not as a protocol document the agent is asked to remember. The five hard rules are wired into six plugin-registered hooks:
 
 | Event | Script | Role |
 | --- | --- | --- |
@@ -105,7 +109,7 @@ Do not store secrets, credentials, or private external data in the state file.
 
 ## Status
 
-Plan Anchor is at v0.1.0. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). Effectiveness measurement on real tasks is deferred to a separate, dedicated eval skill — not bundled into this repo.
+Plan Anchor is at v0.1.0. Landed: skill definition, state schema, guardrails, recovery semantics, the full `/plan-anchor:*` command layer (including `:next`), all six enforcement hooks, and native-primitive integrations (plan mode, Tasks, subagents). The governance layer is feature-complete; effectiveness measurement on real tasks is deferred to a separate, dedicated eval skill — not bundled into this repo.
 
 ## License
 
