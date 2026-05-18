@@ -6,6 +6,8 @@ allowed-tools: [Read, Write, Edit, Bash, EnterPlanMode, ExitPlanMode, TaskCreate
 
 Start a new Plan Anchor task. `$1` is a free-form task description (e.g. `refactor the auth middleware to use JWT`), not a slug — derive the slug from it.
 
+Starting a new task is also the supported way to switch away from the current task when the user is deliberately opening different work. Do **not** require `/plan-anchor:done` first. `/plan-anchor:done` is only for completing the current task with evidence; it is not a prerequisite for changing focus.
+
 ## Preconditions
 
 1. If `$1` is empty or missing, ask the user for a one-line task description (what they want to accomplish, in their own words). Do not proceed without one.
@@ -16,11 +18,16 @@ Start a new Plan Anchor task. `$1` is a free-form task description (e.g. `refact
    - strip leading non-letter chars; trim trailing `-`
    - if longer than 60 chars, truncate at the last `-` boundary that fits
    - the slug should be 2–5 words and read like a folder name (e.g. `refactor-auth-middleware`, `migrate-billing-to-stripe`, `fix-csv-import-rounding`)
-3. Check `.claude/plan-anchor/<slug>.md`:
+3. Check the current task pointer:
+   - Read `.claude/plan-anchor/current.txt` if it exists.
+   - If it points at a different existing task whose frontmatter `status` is `active` or `blocked`, allow the new start to proceed. The previous task remains resumable with `/plan-anchor:resume <old-slug>`.
+   - Before switching away, refresh only the old task's `# Handoff` section if it can be done with the available repo facts. Use the same compact shape as `/plan-anchor:handoff`: repository assumptions, completed WUs, active WU, remaining WUs, touched files, blockers, and smallest next action. If handoff refresh is not possible or the old file is malformed, continue without blocking and print one short warning naming the old slug.
+   - If `git status --short` is non-empty, warn that the new task is starting in a dirty worktree and list the touched files compactly. Do not block; the user may intentionally stack local work.
+4. Check `.claude/plan-anchor/<slug>.md`:
    - If it exists and `status: complete` → ask whether to open a new task with a different slug or re-open this one.
    - If it exists and `status: active|blocked` → don't overwrite. Suggest `/plan-anchor:resume <slug>` and stop.
    - If it does not exist → proceed. If the derived slug would collide with an existing-and-active task but the new description is clearly unrelated, append a short disambiguator (e.g. `-v2`) before falling through to the collision branches above.
-4. **Judge task clarity before entering plan mode.** If `$1` is concrete enough to ground a meaningful Mission and Acceptance Criteria — i.e. it names *what* and gives at least a hint of what "done" looks like — proceed. If it isn't (e.g. `fix it`, `improve performance`, `clean it up`), ask one short clarifying question and wait for the answer before continuing. Use judgment, not heuristics: don't enforce length or word-count thresholds. The bar is "can I draft a contract that wouldn't just be padding?" — not "did the user type enough characters." The slug itself does not need a separate confirmation round; it'll be surfaced for review inside the plan-mode submission below.
+5. **Judge task clarity before entering plan mode.** If `$1` is concrete enough to ground a meaningful Mission and Acceptance Criteria — i.e. it names *what* and gives at least a hint of what "done" looks like — proceed. If it isn't (e.g. `fix it`, `improve performance`, `clean it up`), ask one short clarifying question and wait for the answer before continuing. Use judgment, not heuristics: don't enforce length or word-count thresholds. The bar is "can I draft a contract that wouldn't just be padding?" — not "did the user type enough characters." The slug itself does not need a separate confirmation round; it'll be surfaced for review inside the plan-mode submission below.
 
 ## Repository setup
 
@@ -133,6 +140,8 @@ Write the file to `.claude/plan-anchor/<slug>.md` using the Write tool.
 
 Write the slug to `.claude/plan-anchor/current.txt` (single line, no trailing newline beyond one).
 
+If this overwrites a previous current slug, do not mark that previous task `complete`, do not clear its active WU, and do not update its mirrored native Tasks. Native Tasks do not have a reliable paused state; the state file plus `current.txt` are authoritative.
+
 ## Confirm
 
 Print a 4-line confirmation:
@@ -142,6 +151,12 @@ Started Plan Anchor task: <task-name> (slug: <slug>)
 State: .claude/plan-anchor/<slug>.md
 Active: WU-1 — <goal>
 Next: <smallest next action>
+```
+
+If this start switched away from another task, append one line:
+
+```
+Previous task left resumable: <old-slug> — use /plan-anchor:resume <old-slug> to return.
 ```
 
 Then continue in the same turn: read WU-1's first unchecked `Done when` item and begin implementing it. The user just approved the plan — they don't need to issue another prompt to start coding. The `pre_edit` hook will attach to WU-1 on the first edit and gate scope from there.

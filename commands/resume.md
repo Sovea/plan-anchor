@@ -1,14 +1,14 @@
 ---
-description: Resume a Plan Anchor task. With a slug, switches the active task first; then reloads state, aligns with repo, emits a 4–6 line recovery summary, names the smallest next action, and continues with it.
+description: Resume a Plan Anchor task. With a slug, switches the current task first; then reloads state, aligns with repo, emits a 4–6 line recovery summary, names the smallest next action, and continues with it.
 argument-hint: [task-slug]
 allowed-tools: [Read, Edit, Write, MultiEdit, Bash, Grep, Glob]
 ---
 
 Resume a Plan Anchor task. Follow the 6-step sequence from `skills/plan-anchor/references/recovery.md`.
 
-Passing a slug (`/plan-anchor:resume <slug>`) is the supported way to switch the active task: it points `current.txt` at `<slug>` and then runs the full recovery sequence below. With no slug, recovers whichever task `current.txt` already names.
+Passing a slug (`/plan-anchor:resume <slug>`) is the supported way to switch to an existing task: it points `current.txt` at `<slug>` and then runs the full recovery sequence below. With no slug, recovers whichever task `current.txt` already names.
 
-## 1. Locate the active task
+## 1. Locate the current task
 
 - If `$1` is provided: verify `.claude/plan-anchor/$1.md` exists. If it does not, list existing `.claude/plan-anchor/*.md` slugs (excluding `current.txt`) and stop with `No task "<slug>". Use /plan-anchor:start <task description> to create it, or one of: <list of existing slugs>.` — do **not** touch `current.txt`. If it exists, write `$1` to `.claude/plan-anchor/current.txt` (overwrite) before continuing.
 - Read `.claude/plan-anchor/current.txt`. Let `slug` be its single line.

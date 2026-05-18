@@ -11,7 +11,7 @@ active_wu: WU-1           # id of the Work Unit currently being executed, or nul
 This file is the single source of truth for one Plan Anchor task.
 
 - One file per task at `.claude/plan-anchor/<slug>.md`.
-- `.claude/plan-anchor/current.txt` holds the slug of the currently active task.
+- `.claude/plan-anchor/current.txt` holds the slug of the currently attached task. Other task files may still have `status: active` while they are paused/resumable.
 - `.claude/plan-anchor/<slug>.meta.json` is a hook-managed sidecar (recent
   touches, loop counter); never edit it by hand.
 - The whole directory is git-ignored via `.claude/plan-anchor/.gitignore`

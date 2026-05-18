@@ -4,8 +4,8 @@ How Plan Anchor resumes a task after context compaction, a new session, or an ex
 
 ## Recovery Sequence
 
-1. **Locate the active task.**
-   Read `.claude/plan-anchor/current.txt`. Its single line is the slug of the currently active task. If the file is missing or empty, there is no active task — ask the user which task to resume or start a new one.
+1. **Locate the current task.**
+   Read `.claude/plan-anchor/current.txt`. Its single line is the slug of the currently attached task. If the file is missing or empty, there is no current task — ask the user which task to resume or start a new one.
 
 2. **Load the state file.**
    Open `.claude/plan-anchor/<slug>.md`. Parse frontmatter and the five sections. This is the authoritative record of mission, plan, Work Units, verification, and handoff.
@@ -30,9 +30,11 @@ How Plan Anchor resumes a task after context compaction, a new session, or an ex
 
 ## What does NOT trigger recovery
 
-- A new `/plan-anchor:start` on a different slug. That starts a new task and does not touch other `<slug>.md` files.
+- A new `/plan-anchor:start` on a different slug. That starts a new task, repoints `current.txt` after the new state file is created, and does not require the previous task to be marked complete. The previous `<slug>.md` remains resumable.
 
-`/plan-anchor:resume <slug>` *does* switch the active task and run recovery — it is the single entry point for both "recover the current task" (no arg) and "switch + recover" (with arg). There is no separate pointer-only switch command.
+`/plan-anchor:resume <slug>` *does* switch the current task and run recovery — it is the single entry point for both "recover the current task" (no arg) and "switch + recover" (with arg). There is no separate pointer-only switch command.
+
+`/plan-anchor:done` is a completion gate, not a task-switch gate. Do not ask the user to run `/plan-anchor:done` before `/plan-anchor:start` unless they are actually trying to complete the current task.
 
 ## Conflict resolution rules
 

@@ -39,14 +39,16 @@ If you're not already in a session, a prose fallback also works:
 
 | Command | Purpose |
 | --- | --- |
-| `/plan-anchor:start <task description>` | Derive a slug from the description; capture mission, AC, plan; create `<slug>.md`; set as current. |
+| `/plan-anchor:start <task description>` | Derive a slug from the description; capture mission, AC, plan; create `<slug>.md`; set as current. May switch away from an unfinished current task without requiring `/plan-anchor:done`. |
 | `/plan-anchor:status` | Print the current task's state in ~30 lines. |
 | `/plan-anchor:drift` | Run a drift check against Plan, Non-Goals, and AC. |
 | `/plan-anchor:handoff` | Refresh the Handoff section so a fresh agent can resume. |
-| `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. With a slug, also switches the active task first. |
+| `/plan-anchor:resume [slug]` | Reload state, align with repo, announce the next action. With a slug, also switches the current task first. |
 | `/plan-anchor:next` | Smart dispatcher — read state and call the right sub-command. |
 | `/plan-anchor:done` | Completion gate — runs verification in a subagent, refuses unless every AC has evidence. |
 | `/plan-anchor:revise [slug]` | Layer a revision onto any task — new ACs/WUs appended via plan mode. Defaults to the current task. `complete` flips back to `active`; `active`/`blocked` keep their current WU and queue new ones. Warns from the 3rd revision. |
+
+Task switching is intentionally lightweight: use `/plan-anchor:start <description>` for new work, and `/plan-anchor:resume <slug>` for existing work. `/plan-anchor:done` is only the evidence-gated completion path; it is not required before switching focus.
 
 ## When to use
 
@@ -68,7 +70,7 @@ Governance is enforced at the harness level, not as a protocol document the agen
 
 | Event | Script | Role |
 | --- | --- | --- |
-| `SessionStart` | `hooks/session_start.js` | Inject a 4-line resume brief so a new or post-compaction session knows the active task, Work Unit, and next action. |
+| `SessionStart` | `hooks/session_start.js` | Inject a 4-line resume brief so a new or post-compaction session knows the current task, active Work Unit, and next action. |
 | `UserPromptSubmit` | `hooks/user_prompt.js` | Inject active WU + scope + open drift + local-fix loop warning into every turn. |
 | `PreToolUse` (`Edit\|Write\|MultiEdit`) | `hooks/pre_edit.js` | **Block** any edit when no Work Unit is active or when the target is outside the active WU's declared scope (G1). |
 | `PostToolUse` (`Edit\|Write\|MultiEdit`) | `hooks/post_edit.js` | Maintain the local-fix-loop counter in a per-task sidecar `.meta.json` (G2 detection). |
@@ -99,12 +101,14 @@ Layout per task, created by `/plan-anchor:start`:
 ```
 .claude/plan-anchor/
 ├── .gitignore           # single line: *  — keeps the whole dir out of git
-├── current.txt          # slug of the currently active task
+├── current.txt          # slug of the currently attached task
 ├── <slug>.md            # human-readable state file (mission, AC, WUs, ...)
 └── <slug>.meta.json     # hook-managed sidecar: recent_touches, loop_counter
 ```
 
 The `.gitignore` is directory-scoped so Plan Anchor never touches the repo's root `.gitignore`. Works on repos that aren't under git at all.
+
+`current.txt` is the hook attachment pointer, not a global lock. Starting new work can repoint it while older task files remain `status: active` and resumable.
 
 Do not store secrets, credentials, or private external data in the state file.
 

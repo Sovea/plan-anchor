@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SessionStart hook.
 //
-// If there is an active Plan Anchor task, print a 4–6 line recovery brief on
+// If there is a current Plan Anchor task, print a 4–6 line recovery brief on
 // stdout. Claude Code injects SessionStart stdout into the model's context,
 // so the next turn starts knowing where we left off.
 //
@@ -52,8 +52,8 @@ function leadingLine(source, mission, slug) {
     case 'compact':
       return `[Plan Anchor] Resuming "${mission}" after compaction — handoff was just flushed (slug: ${slug}).`;
     case 'startup':
-      return `[Plan Anchor] Active task: "${mission}" (slug: ${slug}).`;
+      return `[Plan Anchor] Current task: "${mission}" (slug: ${slug}).`;
     default:
-      return `[Plan Anchor] Active task: "${mission}" (slug: ${slug}).`;
+      return `[Plan Anchor] Current task: "${mission}" (slug: ${slug}).`;
   }
 }

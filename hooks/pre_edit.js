@@ -35,7 +35,7 @@ lib.safeMain(async () => {
   if (!active) {
     lib.blockPreTool(
       `[Plan Anchor · G1] No active Work Unit on task "${state.slug}". ` +
-        `Run /plan-anchor:resume to pick up the current task, /plan-anchor:resume <slug> to change tasks, or /plan-anchor:start <slug> for a new task before editing.`,
+        `Run /plan-anchor:resume to pick up the current task, /plan-anchor:resume <slug> to change to an existing task, or /plan-anchor:start <task description> to create and switch to a new task before editing.`,
     );
   }
 
