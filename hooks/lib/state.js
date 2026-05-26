@@ -134,7 +134,7 @@ function parseWorkUnits(section) {
 function finalizeWU(wu) {
   const body = wu._body.join('\n');
   const serves = extractListField(wu._body, /^-\s*Serves\s*:\s*(.+)$/i);
-  const scopeRaw = extractListField(wu._body, /^-\s*Scope\s*:\s*(.+)$/i);
+  const scopeRaw = extractScopeField(wu._body);
   const verification = extractListField(wu._body, /^-\s*Verification\s*:\s*(.+)$/i).join('; ');
   const evidenceLines = extractMultilineField(wu._body, /^-\s*Evidence\s*:\s*(.*)$/i);
   const risks = extractMultilineField(wu._body, /^-\s*Risks?\s*:\s*(.*)$/i);
@@ -153,6 +153,39 @@ function finalizeWU(wu) {
     risks: risks.filter((l) => l.trim().length > 0),
     body,
   };
+}
+
+function extractScopeField(lines) {
+  // Handles both single-line (`- Scope: a, b, c`) and multi-line formats:
+  //   - Scope:
+  //     - src/auth/**
+  //     - src/types/**
+  const headingRe = /^-\s*Scope\s*:\s*(.*)$/i;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(headingRe);
+    if (!m) continue;
+    const inline = (m[1] || '').trim();
+    if (inline) {
+      return inline
+        .split(',')
+        .map((x) => x.replace(/`/g, '').trim())
+        .filter((x) => x.length > 0);
+    }
+    // No inline content — collect indented sub-items
+    const out = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      const sub = lines[j].match(/^\s+-\s*(.+?)\s*$/);
+      if (sub) {
+        out.push(sub[1].replace(/`/g, '').trim());
+        continue;
+      }
+      // Stop at next top-level field or blank-then-field
+      if (/^-\s/.test(lines[j])) break;
+      if (!lines[j].trim()) break;
+    }
+    return out.filter((x) => x.length > 0);
+  }
+  return [];
 }
 
 function extractListField(lines, headingRe) {
@@ -492,8 +525,15 @@ function writeHandoffSection(state, handoffMarkdown) {
   const raw = state.raw;
   const marker = /^#\s+Handoff\s*$/m;
   if (!marker.test(raw)) return false;
-  const withoutHandoff = raw.replace(/\n?#\s+Handoff\s*\n[\s\S]*$/m, '\n');
-  const next = withoutHandoff.replace(/\n+$/, '') + '\n\n' + handoffMarkdown.replace(/^\s+|\s+$/g, '') + '\n';
+  // Match the Handoff section up to (but not including) the next H1, or end of file.
+  // This preserves # Revisions and any other trailing sections.
+  const handoffStart = raw.search(/^#\s+Handoff\s*$/m);
+  const afterHandoff = raw.slice(handoffStart + 1).search(/^#\s+/m);
+  const withoutHandoff = afterHandoff === -1
+    ? raw.slice(0, handoffStart).replace(/\n+$/, '')
+    : raw.slice(0, handoffStart).replace(/\n+$/, '') + '\n\n' + raw.slice(handoffStart + 1 + afterHandoff);
+  const handoffClean = handoffMarkdown.replace(/^\s+|\s+$/g, '');
+  const next = withoutHandoff.replace(/\n+$/, '') + '\n\n' + handoffClean + '\n';
   return writeStateRaw(state.path, bumpUpdated(next));
 }
 

@@ -61,6 +61,8 @@ lib.safeMain(async () => {
   if (!active) return;
 
   const rel = lib.normalizePath(filePath, projectDir);
+  if (rel === '.claude/plan-anchor' || rel.startsWith('.claude/plan-anchor/')) return;
+
   const inScope = lib.inScope(filePath, active, projectDir);
   const secondary = isSecondary(rel);
 
